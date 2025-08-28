@@ -19,7 +19,7 @@ const LoginScreen = ({ navigation }) => {
 
       // Ha sikeres volt a hívás, és van token...
       if (response.token) {
-        signIn(response.token); // ...akkor bejelentkeztetjük a felhasználót a context segítségével
+        signIn(response); // ...akkor bejelentkeztetjük a felhasználót a context segítségével
       }
     } catch (error) {
       // Ha a szerviz hibát dobott, megjelenítjük egy felugró ablakban
