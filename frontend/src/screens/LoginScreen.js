@@ -1,31 +1,47 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react"; // A 'useContext' importra már nincs szükség
 import { View, StyleSheet, Alert } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
-import { AuthContext } from "../contexts/AuthContext";
-import { login } from "../services/AuthService"; // <-- IMPORTÁLJUK AZ ÚJ SZERVIZT
+import { useAuth } from "../contexts/AuthContext"; // <-- HELYES IMPORT
+import { login } from "../services/AuthService";
 
 const LoginScreen = ({ navigation }) => {
-  const { signIn } = useContext(AuthContext);
+  const { signIn } = useAuth(); // <-- A HELYES HOOK HASZNÁLATA
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // <-- ÚJ ÁLLAPOT A TÖLTÉS JELZÉSÉRE
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
-    setIsLoading(true); // Elkezdjük a töltést
+    console.log("--- LOGIN SCREEN: handleLogin elindult ---");
+    setIsLoading(true);
     try {
-      // Meghívjuk a szervizünket az email és jelszó értékekkel
       const response = await login(email, password);
+      console.log(
+        "--- LOGIN SCREEN: Service válasza megérkezett ---",
+        response
+      );
 
-      // Ha sikeres volt a hívás, és van token...
-      if (response.token) {
-        signIn(response); // ...akkor bejelentkeztetjük a felhasználót a context segítségével
+      if (response && response.token) {
+        console.log(
+          "--- LOGIN SCREEN: Token létezik, signIn hívás indul... ---"
+        );
+        signIn(response);
+        console.log("--- LOGIN SCREEN: signIn hívás befejeződött. ---");
+      } else {
+        console.error(
+          "--- LOGIN SCREEN HIBA: A service nem adott vissza tokent! ---",
+          response
+        );
+        Alert.alert("Hiba", "Ismeretlen hiba történt a bejelentkezés során.");
       }
     } catch (error) {
-      // Ha a szerviz hibát dobott, megjelenítjük egy felugró ablakban
+      console.error("--- LOGIN SCREEN HIBA: a service hibát dobott ---", error);
       Alert.alert("Hiba", error.message);
     } finally {
-      setIsLoading(false); // Befejezzük a töltést (akár sikeres, akár nem)
+      setIsLoading(false);
+      console.log(
+        "--- LOGIN SCREEN: handleLogin befejeződött (finally blokk) ---"
+      );
     }
   };
 
@@ -41,7 +57,7 @@ const LoginScreen = ({ navigation }) => {
         style={styles.input}
         keyboardType="email-address"
         autoCapitalize="none"
-        disabled={isLoading} // Ha tölt, tiltsuk le a mezőt
+        disabled={isLoading}
       />
       <TextInput
         label="Jelszó"
@@ -49,14 +65,14 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setPassword}
         secureTextEntry
         style={styles.input}
-        disabled={isLoading} // Ha tölt, tiltsuk le a mezőt
+        disabled={isLoading}
       />
       <Button
         mode="contained"
         onPress={handleLogin}
         style={styles.button}
-        loading={isLoading} // A gomb mutatja a töltés jelzést
-        disabled={isLoading} // Ha tölt, a gombot is letiltjuk
+        loading={isLoading}
+        disabled={isLoading}
       >
         Bejelentkezés
       </Button>
@@ -67,11 +83,17 @@ const LoginScreen = ({ navigation }) => {
       >
         Regisztráció
       </Button>
+      <Button
+        onPress={() => navigation.navigate("ForgotPassword")}
+        style={styles.forgotPasswordButton}
+        disabled={isLoading}
+        labelStyle={styles.forgotPasswordLabel}
+      >
+        Elfelejtettem a jelszavam
+      </Button>
     </View>
   );
 };
-
-// A styles rész nem változott, maradhat ugyanaz
 
 const styles = StyleSheet.create({
   container: {
@@ -88,6 +110,12 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 8,
+  },
+  forgotPasswordButton: {
+    marginTop: 16,
+  },
+  forgotPasswordLabel: {
+    fontSize: 12,
   },
 });
 

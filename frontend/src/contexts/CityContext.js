@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useCallback } from "react";
 import {
   getFavoriteCitiesWeather,
   addCity,
@@ -8,44 +8,37 @@ import { Alert } from "react-native";
 
 const CityContext = createContext();
 
-export const useCities = () => {
-  return useContext(CityContext);
-};
-
 export const CityProvider = ({ children }) => {
   const [cities, setCities] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [initialLoadDone, setInitialLoadDone] = useState(false); // Nyomon követi, hogy az első betöltés megtörtént-e
+  const [isLoading, setIsLoading] = useState(false);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
-  // Városok betöltése az API-ról (csak egyszer)
-  const loadCities = async () => {
-    if (initialLoadDone) return; // Ha már betöltöttük, ne tegyük újra
+  const loadCities = useCallback(async () => {
+    if (initialLoadDone) return;
     setIsLoading(true);
     try {
       const data = await getFavoriteCitiesWeather();
       setCities(data);
       setInitialLoadDone(true);
     } catch (error) {
-      Alert.alert("Hiba", "Nem sikerült betölteni a városokat.");
+      console.error("Hiba a városok betöltésekor a kontextusban:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [initialLoadDone]);
 
-  // Város hozzáadása
-  const handleAddCity = async (cityName) => {
+  const handleAddCity = useCallback(async (cityName) => {
     try {
       const newCity = await addCity(cityName);
       setCities((prevCities) => [...prevCities, newCity]);
-      return true; // Sikert jelez
+      return true;
     } catch (error) {
       Alert.alert("Hiba", "Nem sikerült hozzáadni a várost.");
-      return false; // Hibát jelez
+      return false;
     }
-  };
+  }, []);
 
-  // Város törlése
-  const handleDeleteCity = async (cityId) => {
+  const handleDeleteCity = useCallback(async (cityId) => {
     try {
       await deleteCity(cityId);
       setCities((prevCities) =>
@@ -54,15 +47,19 @@ export const CityProvider = ({ children }) => {
     } catch (error) {
       Alert.alert("Hiba", "Nem sikerült törölni a várost.");
     }
-  };
+  }, []);
 
   const value = {
     cities,
     isLoading,
-    loadCities, // Elérhetővé tesszük, hogy a komponensek elindíthassák a betöltést
+    loadCities,
     handleAddCity,
     handleDeleteCity,
   };
 
   return <CityContext.Provider value={value}>{children}</CityContext.Provider>;
+};
+
+export const useCities = () => {
+  return useContext(CityContext);
 };

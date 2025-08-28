@@ -1,25 +1,32 @@
 import React, {
   createContext,
   useState,
-  useMemo,
   useEffect,
   useContext,
+  useCallback,
 } from "react";
 import * as SecureStore from "expo-secure-store";
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
+
 export const AuthProvider = ({ children }) => {
   const [userToken, setUserToken] = useState(null);
-  const [userRole, setUserRole] = useState(null); // <-- ÚJ ÁLLAPOT A SZEREPKÖRNEK
+  const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+useEffect(() => {
+    console.log('--- AUTH CONTEXT: Állapot megváltozott! ---', {
+      token: userToken,
+      role: userRole,
+    });
+  }, [userToken, userRole]);
+
   useEffect(() => {
-    // Induláskor ellenőrizzük, van-e token és szerepkör
     const bootstrapAsync = async () => {
       let token, role;
       try {
         token = await SecureStore.getItemAsync("userToken");
-        role = await SecureStore.getItemAsync("userRole"); // <-- SZEREPKÖR OLVASÁSA
+        role = await SecureStore.getItemAsync("userRole");
       } catch (e) {
         console.error("Hiba a perzisztens adatok lekérésekor", e);
       }
@@ -30,30 +37,37 @@ export const AuthProvider = ({ children }) => {
     bootstrapAsync();
   }, []);
 
-  const authContext = useMemo(
-    () => ({
-      signIn: async (data) => {
-        // <-- Most már egy 'data' objektumot kap
-        const { token, role } = data;
-        setUserToken(token);
-        setUserRole(role);
-        await SecureStore.setItemAsync("userToken", token);
-        await SecureStore.setItemAsync("userRole", role); // <-- SZEREPKÖR MENTÉSE
-      },
-      signOut: async () => {
-        setUserToken(null);
-        setUserRole(null);
-        await SecureStore.deleteItemAsync("userToken");
-        await SecureStore.deleteItemAsync("userRole"); // <-- SZEREPKÖR TÖRLÉSE
-      },
-      userToken,
-      userRole, // <-- Elérhetővé tesszük a szerepkört
-    }),
-    [userToken, userRole]
-  );
+const signIn = useCallback(async (data) => {
+    console.log('--- AUTH CONTEXT: signIn funkció meghívva ---', data);
+    try {
+      const { token, role } = data;
+      setUserToken(token);
+      setUserRole(role);
+      console.log('--- AUTH CONTEXT: setUserToken és setUserRole beállítva. ---');
+      await SecureStore.setItemAsync('userToken', token);
+      await SecureStore.setItemAsync('userRole', role);
+      console.log('--- AUTH CONTEXT: Adatok elmentve a SecureStore-ba. ---');
+    } catch (error) {
+      console.error('--- AUTH CONTEXT HIBA: Hiba a signIn során ---', error);
+    }
+  }, []);
+
+  const signOut = useCallback(async () => {
+    setUserToken(null);
+    setUserRole(null);
+    await SecureStore.deleteItemAsync("userToken");
+    await SecureStore.deleteItemAsync("userRole");
+  }, []);
+
+  const value = {
+    signIn,
+    signOut,
+    userToken,
+    userRole,
+  };
 
   return (
-    <AuthContext.Provider value={{ ...authContext, isLoading }}>
+    <AuthContext.Provider value={{ ...value, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

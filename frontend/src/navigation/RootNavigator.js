@@ -1,17 +1,16 @@
-import React, { useContext } from "react";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AppNavigator from "./AppNavigator";
 import AuthNavigator from "./AuthNavigator";
-import { AuthContext } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 import { View, ActivityIndicator } from "react-native";
 
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
-  const { isLoading } = useContext(AuthContext);
+  const { isLoading, userToken } = useAuth(); // Itt is lekérdezzük a tokent
 
-  // Amíg a tokent a SecureStore-ból olvassuk, mutassunk egy töltőképernyőt
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -23,15 +22,20 @@ const RootNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* Az alap képernyőnk mindig a fő (Tab) navigátor */}
-        <Stack.Screen name="App" component={AppNavigator} />
-
-        {/* Az authentikációs képernyőket egy külön, modális csoportban jelenítjük meg */}
-        <Stack.Screen
-          name="Auth"
-          component={AuthNavigator}
-          options={{ presentation: "modal" }}
-        />
+        {userToken ? (
+          // Ha be vagyunk lépve, CSAK az AppNavigator létezik a stack-en
+          <Stack.Screen name="App" component={AppNavigator} />
+        ) : (
+          // Ha nem vagyunk belépve, az AppNavigator és az AuthNavigator is létezik
+          <>
+            <Stack.Screen name="App" component={AppNavigator} />
+            <Stack.Screen
+              name="Auth"
+              component={AuthNavigator}
+              options={{ presentation: "modal" }}
+            />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

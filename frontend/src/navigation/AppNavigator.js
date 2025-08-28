@@ -3,14 +3,18 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ManageCitiesScreen from "../screens/ManageCitiesScreen";
-import AdminScreen from "../screens/AdminScreen"; // Admin képernyő importálása
+import AdminNavigator from "./AdminNavigator";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAuth } from "../contexts/AuthContext";
 
 const Tab = createBottomTabNavigator();
 
+// Ezt a komponenst definiáljuk a renderelési cikluson kívül,
+// hogy megszüntessük a teljesítményre vonatkozó figyelmeztetést.
+// Mivel ez egy konstans, a React nem hozza létre minden rendereléskor újra.
+const EmptyComponent = () => null;
+
 const AppNavigator = () => {
-  // A userToken mellé most már a userRole-t is lekérdezzük a kontextusból
   const { userToken, userRole } = useAuth();
 
   return (
@@ -28,7 +32,7 @@ const AppNavigator = () => {
 
       {userToken ? (
         <>
-          {/* Ezek a fülek csak bejelentkezett felhasználóknak jelennek meg */}
+          {/* Bejelentkezett felhasználói fülek */}
           <Tab.Screen
             name="ManageCities"
             component={ManageCitiesScreen}
@@ -43,6 +47,26 @@ const AppNavigator = () => {
               ),
             }}
           />
+
+          {/* Admin fül, ami csak adminoknak jelenik meg */}
+          {userRole === "admin" && (
+            <Tab.Screen
+              name="Admin"
+              component={AdminNavigator} // A belső navigátort használja
+              options={{
+                title: "Admin",
+                headerShown: false, // Elrejtjük a Tab Navigator saját fejlécét, hogy a belsőé látszódjon
+                tabBarIcon: ({ color, size }) => (
+                  <MaterialCommunityIcons
+                    name="shield-account"
+                    color={color}
+                    size={size}
+                  />
+                ),
+              }}
+            />
+          )}
+
           <Tab.Screen
             name="Profile"
             component={ProfileScreen}
@@ -57,33 +81,13 @@ const AppNavigator = () => {
               ),
             }}
           />
-
-          {/* --- EZ A BEILLESZTETT ÚJ RÉSZ --- */}
-          {/* Ez a fül csak akkor jelenik meg, ha a felhasználó admin */}
-          {userRole === "admin" && (
-            <Tab.Screen
-              name="Admin"
-              component={AdminScreen}
-              options={{
-                title: "Admin",
-                tabBarIcon: ({ color, size }) => (
-                  <MaterialCommunityIcons
-                    name="shield-account"
-                    color={color}
-                    size={size}
-                  />
-                ),
-              }}
-            />
-          )}
-          {/* --- EDDIG TART AZ ÚJ RÉSZ --- */}
         </>
       ) : (
         <>
-          {/* Ez a fül csak vendégeknek jelenik meg */}
+          {/* Vendég felhasználó "Bejelentkezés" füle */}
           <Tab.Screen
             name="LoginTab"
-            component={() => null} // Nincs valódi képernyője
+            component={EmptyComponent} // Itt használjuk a konstans komponenst
             options={{
               title: "Bejelentkezés",
               tabBarIcon: ({ color, size }) => (
@@ -96,8 +100,8 @@ const AppNavigator = () => {
             }}
             listeners={({ navigation }) => ({
               tabPress: (e) => {
-                e.preventDefault(); // Megakadályozzuk az alapértelmezett navigációt
-                navigation.navigate("Auth", { screen: "Login" }); // Átirányítjuk az Auth stack-re
+                e.preventDefault(); // Megakadályozzuk a navigációt a "nulla" komponensre
+                navigation.navigate("Auth", { screen: "Login" }); // Átirányítjuk a modális bejelentkezőre
               },
             })}
           />

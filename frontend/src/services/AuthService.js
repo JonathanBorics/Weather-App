@@ -2,25 +2,37 @@
 // a backend felé, hogy bejelentkeztesse a felhasználót.
 
 export const login = async (email, password) => {
-  console.log("AuthService: Bejelentkezési kísérlet...", { email, password });
+  console.log("--- AUTH SERVICE: Bejelentkezési kísérlet... ---", {
+    email,
+    password,
+  });
 
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (email && password) {
-        // --- EZ AZ ÚJ LOGIKA ---
         const isAdmin = email.toLowerCase() === "admin@admin.com";
         const userRole = isAdmin ? "admin" : "user";
 
         console.log(
-          `AuthService: Sikeres bejelentkezés (szimulált). Szerepkör: ${userRole}`
+          `--- AUTH SERVICE: Sikeres bejelentkezés. Szerepkör: ${userRole} ---`
         );
-        // A token mellé most már a szerepkört is visszaadjuk
-        resolve({ token: "uj-felhasznalo-jwt-tokenje", role: "user" });
+
+        // A javított rész: a 'userRole' változót használjuk
+        const dataToReturn = {
+          token: "igazi-jwt-token-a-backendrol",
+          role: userRole,
+        };
+
+        console.log(
+          "--- AUTH SERVICE: Visszatérési adat (resolve) ---",
+          dataToReturn
+        );
+        resolve(dataToReturn);
       } else {
         console.log("AuthService: Sikertelen bejelentkezés (szimulált)");
         reject(new Error("Hibás e-mail cím vagy jelszó"));
       }
-    }, 1000); // Kicsit gyorsabb válaszidő
+    }, 1000);
   });
 };
 
@@ -63,5 +75,59 @@ export const changePassword = async (currentPassword, newPassword) => {
         reject(new Error("Az új jelszó nem lehet üres."));
       }
     }, 1500); // 1.5 másodperc késleltetés
+  });
+};
+
+export const forgotPassword = async (email) => {
+  console.log(`AuthService: Elfelejtett jelszó kérés a(z) ${email} címre...`);
+  // A backend itt generálna egy egyedi, biztonságos tokent,
+  // elmentené az adatbázisba egy lejárati idővel,
+  // majd elküldene egy e-mailt a felhasználónak, ami tartalmazza a tokent.
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (email.toLowerCase() === "user@example.com") {
+        // Szimuláljuk, hogy ez egy regisztrált e-mail
+        console.log(
+          'AuthService: Jelszó-visszaállító e-mail sikeresen "elküldve".'
+        );
+        resolve({
+          message:
+            "Ha az e-mail cím regisztrálva van, elküldtük a visszaállító linket.",
+        });
+      } else {
+        // Biztonsági okokból akkor is sikeres üzenetet küldünk, ha az e-mail nem létezik,
+        // hogy ne lehessen kitalálni, mely e-mailek vannak regisztrálva.
+        console.log(
+          "AuthService: Nem regisztrált e-mail cím, de sikeres üzenetet küldünk."
+        );
+        resolve({
+          message:
+            "Ha az e-mail cím regisztrálva van, elküldtük a visszaállító linket.",
+        });
+      }
+    }, 1500);
+  });
+};
+
+// 2. A felhasználó az "e-mailben kapott link" után beállítja az új jelszót
+export const resetPassword = async (token, newPassword) => {
+  console.log(
+    `AuthService: Jelszó visszaállítása a(z) "${token}" token-nel...`
+  );
+  // A backend itt validálná a tokent: létezik-e, nem járt-e le.
+  // Ha valid, frissítené a felhasználó jelszavát a hashelt új jelszóra.
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (token === "valid-reset-token" && newPassword) {
+        // Egy ál-tokent ellenőrzünk
+        console.log("AuthService: Jelszó sikeresen visszaállítva.");
+        resolve({
+          message:
+            "A jelszavad sikeresen megváltozott! Most már bejelentkezhetsz.",
+        });
+      } else {
+        reject(new Error("Érvénytelen vagy lejárt token."));
+      }
+    }, 1500);
   });
 };

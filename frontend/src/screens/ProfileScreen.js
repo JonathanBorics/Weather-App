@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Alert } from "react-native";
-import { Text, TextInput, Button } from "react-native-paper";
-import { changePassword } from "../services/AuthService"; // <-- Az új service importálása
+import { Text, TextInput, Button, Divider } from "react-native-paper";
+import { changePassword } from "../services/AuthService";
+import { useAuth } from "../contexts/AuthContext"; // <-- 1. IMPORTÁLJUK A useAuth-ot
 
 const ProfileScreen = () => {
+  const { signOut } = useAuth(); // <-- 2. KISZEDJÜK A signOut FUNKCIÓT A KONTEXTUSBÓL
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePasswordChange = async () => {
-    // 1. Kliens oldali validáció
     if (!currentPassword || !newPassword || !confirmNewPassword) {
       Alert.alert("Hiba", "Kérjük, tölts ki minden mezőt.");
       return;
@@ -19,18 +21,14 @@ const ProfileScreen = () => {
       Alert.alert("Hiba", "Az új jelszavak nem egyeznek.");
       return;
     }
-
     setIsLoading(true);
     try {
       const response = await changePassword(currentPassword, newPassword);
-      // Ha a service sikeresen lefutott, a `response` tartalmazza az üzenetet
       Alert.alert("Siker", response.message);
-      // Sikeres változtatás után ürítsük a mezőket
       setCurrentPassword("");
       setNewPassword("");
       setConfirmNewPassword("");
     } catch (error) {
-      // Ha a service hibát dob (pl. rossz jelenlegi jelszó)
       Alert.alert("Hiba", error.message);
     } finally {
       setIsLoading(false);
@@ -42,8 +40,6 @@ const ProfileScreen = () => {
       <Text variant="headlineMedium" style={styles.header}>
         Profilom
       </Text>
-
-      {/* Ide a jövőben jöhetnének egyéb profiladatok, pl. e-mail cím */}
 
       <Text variant="titleMedium" style={styles.subHeader}>
         Jelszó megváltoztatása
@@ -81,6 +77,18 @@ const ProfileScreen = () => {
       >
         Jelszó módosítása
       </Button>
+
+      {/* --- 3. ITT AZ ÚJ GOMB --- */}
+      <Divider style={styles.divider} />
+      <Button
+        icon="logout"
+        mode="outlined" // Egy más stílusú gomb
+        onPress={signOut} // Meghívja a kijelentkezési funkciót
+        style={styles.button}
+      >
+        Kijelentkezés
+      </Button>
+      {/* --------------------------- */}
     </View>
   );
 };
@@ -102,6 +110,10 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 8,
+  },
+  // Egy stílus az elválasztó vonalnak
+  divider: {
+    marginVertical: 24,
   },
 });
 

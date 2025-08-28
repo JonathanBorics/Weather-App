@@ -1,31 +1,29 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react"; // A 'useContext' importra már nincs szükség
 import { View, StyleSheet, Alert } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
-import { AuthContext } from "../contexts/AuthContext";
-import { register } from "../services/AuthService"; // <-- A most létrehozott service importálása
+import { useAuth } from "../contexts/AuthContext"; // <-- HELYES IMPORT
+import { register } from "../services/AuthService";
 
 const RegisterScreen = ({ navigation }) => {
-  const { signIn } = useContext(AuthContext); // A signIn-re szükségünk van, hogy regisztráció után be is lépjünk
+  const { signIn } = useAuth(); // <-- A HELYES HOOK HASZNÁLATA
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // <-- Új állapot a jelszó megerősítéséhez
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
-    // 1. Kliens oldali ellenőrzés: egyezik-e a két jelszó?
     if (password !== confirmPassword) {
       Alert.alert("Hiba", "A két jelszó nem egyezik!");
-      return; // Ha nem egyezik, nem is próbálkozunk tovább
+      return;
     }
 
     setIsLoading(true);
     try {
       const response = await register(email, password);
-
       if (response.token) {
-        // Sikeres regisztráció után egyből be is jelentkeztetjük a felhasználót
-        signIn(response.token);
+        // A register service-nek is a teljes { token, role } objektumot kell visszaadnia!
+        signIn(response);
       }
     } catch (error) {
       Alert.alert("Hiba", error.message);
@@ -74,7 +72,7 @@ const RegisterScreen = ({ navigation }) => {
         Regisztráció
       </Button>
       <Button
-        onPress={() => navigation.goBack()} // Ez a gomb visszavisz az előző képernyőre (Login)
+        onPress={() => navigation.goBack()}
         style={styles.button}
         disabled={isLoading}
       >
