@@ -1,0 +1,8 @@
+asszam npm i minden csomag letoltese 
+
+
+cd frontend 
+
+aztan 
+
+npx expo start
