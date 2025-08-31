@@ -6,6 +6,45 @@ import React, {
   useCallback,
 } from "react";
 import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native"; // Beimportáljuk a Platform modult
+
+// --- ÚJ RÉSZ: Platform-specifikus tárhelykezelő ---
+const storage = {
+  // Mobilon (iOS, Android) az Expo SecureStore-t használjuk
+  getItem: async (key) => {
+    if (Platform.OS !== "web") {
+      return SecureStore.getItemAsync(key);
+    }
+    // Weben a böngésző localStorage-át használjuk
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.error("LocalStorage not available", e);
+      return null;
+    }
+  },
+  setItem: async (key, value) => {
+    if (Platform.OS !== "web") {
+      return SecureStore.setItemAsync(key, value);
+    }
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.error("LocalStorage not available", e);
+    }
+  },
+  deleteItem: async (key) => {
+    if (Platform.OS !== "web") {
+      return SecureStore.deleteItemAsync(key);
+    }
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.error("LocalStorage not available", e);
+    }
+  },
+};
+// --------------------------------------------------
 
 const AuthContext = createContext();
 
@@ -15,18 +54,16 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log("--- AUTH CONTEXT: Állapot megváltozott! ---", {
-      token: userToken,
-      role: userRole,
-    });
+    // Ez a logolás rendben van
   }, [userToken, userRole]);
 
   useEffect(() => {
     const bootstrapAsync = async () => {
       let token, role;
       try {
-        token = await SecureStore.getItemAsync("userToken");
-        role = await SecureStore.getItemAsync("userRole");
+        // A SecureStore helyett a mi 'storage' objektumunkat használjuk
+        token = await storage.getItem("userToken");
+        role = await storage.getItem("userRole");
       } catch (e) {
         console.error("Hiba a perzisztens adatok lekérésekor", e);
       }
@@ -38,17 +75,13 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signIn = useCallback(async (data) => {
-    console.log("--- AUTH CONTEXT: signIn funkció meghívva ---", data);
     try {
       const { token, role } = data;
       setUserToken(token);
       setUserRole(role);
-      console.log(
-        "--- AUTH CONTEXT: setUserToken és setUserRole beállítva. ---"
-      );
-      await SecureStore.setItemAsync("userToken", token);
-      await SecureStore.setItemAsync("userRole", role);
-      console.log("--- AUTH CONTEXT: Adatok elmentve a SecureStore-ba. ---");
+      // A SecureStore helyett a mi 'storage' objektumunkat használjuk
+      await storage.setItem("userToken", token);
+      await storage.setItem("userRole", role);
     } catch (error) {
       console.error("--- AUTH CONTEXT HIBA: Hiba a signIn során ---", error);
     }
@@ -58,23 +91,15 @@ export const AuthProvider = ({ children }) => {
     try {
       setUserToken(null);
       setUserRole(null);
-      await SecureStore.deleteItemAsync("userToken");
-      await SecureStore.deleteItemAsync("userRole");
+      // A SecureStore helyett a mi 'storage' objektumunkat használjuk
+      await storage.deleteItem("userToken");
+      await storage.deleteItem("userRole");
     } catch (error) {
-      // Bár ritka, a SecureStore is dobhat hibát. Érdemes lekezelni.
-      console.error(
-        "--- AUTH CONTEXT HIBA: Hiba a signOut során (SecureStore) ---",
-        error
-      );
+      console.error("--- AUTH CONTEXT HIBA: Hiba a signOut során ---", error);
     }
   }, []);
 
-  const value = {
-    signIn,
-    signOut,
-    userToken,
-    userRole,
-  };
+  const value = { signIn, signOut, userToken, userRole };
 
   return (
     <AuthContext.Provider value={{ ...value, isLoading }}>

@@ -1,16 +1,14 @@
 <?php
 namespace WeatherApp\Controllers;
 
-// EZEK A SOROK A LÉNYEGESEK, HOGY A PHP MEGTALÁLJA A TÖBBI OSZTÁLYT:
+// Importáljuk az összes szükséges osztályt
 use WeatherApp\Core\WeatherService;
 use WeatherApp\Models\City;
 use WeatherApp\Models\FavoriteCity;
+use WeatherApp\Models\WeatherArchive; // Ezt is hozzáadjuk!
 
 class CitiesController {
     
-    /**
-     * Lekéri a felhasználó kedvenc városait és azok aktuális időjárását.
-     */
     public function getFavorites($userData) {
         $userId = $userData->data->id;
         $favoriteCityModel = new FavoriteCity();
@@ -22,7 +20,6 @@ class CitiesController {
         foreach ($favoriteCities as $city) {
             $currentWeather = $weatherService->getCurrentWeather($city['lat'], $city['lon']);
             if ($currentWeather) {
-                // Kombináljuk a DB-ből származó adatot az API válasszal
                  $weatherData[] = [
                     'id' => $city['id'],
                     'cityName' => $city['name'],
@@ -38,9 +35,6 @@ class CitiesController {
         echo json_encode($weatherData);
     }
 
-    /**
-     * Új kedvenc várost ad hozzá a felhasználóhoz.
-     */
     public function addFavorite($userData) {
         $userId = $userData->data->id;
         $data = json_decode(file_get_contents("php://input"));
@@ -63,12 +57,10 @@ class CitiesController {
         $cityModel = new City();
         $favoriteCityModel = new FavoriteCity();
 
-        // Létezik már a város az adatbázisunkban?
         $city = $cityModel->findByCoords($cityCoords['lat'], $cityCoords['lon']);
         if ($city) {
             $cityId = $city['id'];
         } else {
-            // Ha nem, hozzuk létre
             $cityId = $cityModel->create(
                 $cityCoords['name'], 
                 $cityCoords['country'], 
@@ -83,30 +75,36 @@ class CitiesController {
             return;
         }
 
-        // Hozzá van már adva a kedvencekhez?
         if ($favoriteCityModel->find($userId, $cityId)) {
-            http_response_code(409); // Conflict
+            http_response_code(409);
             echo json_encode(['error' => 'City is already in favorites.']);
             return;
         }
 
-        // Hozzáadás a kedvencekhez
         if ($favoriteCityModel->create($userId, $cityId)) {
+            // --- AZONNALI ARCHIVÁLÁS ---
+            $currentWeather = $weatherService->getCurrentWeather($cityCoords['lat'], $cityCoords['lon']);
+            if ($currentWeather) {
+                $archiveModel = new WeatherArchive();
+                $archiveModel->create($cityId, $currentWeather);
+            }
+            // -----------------------------
+
+            // A TE FRONTENDED a refreshCities()-t hívja, így elég egy egyszerű
+            // sikeres üzenetet visszaküldeni, nem kell a teljes objektum.
             http_response_code(201);
             echo json_encode([
                 'id' => $cityId,
                 'cityName' => $cityCoords['name'],
-                'message' => 'City added to favorites.'
+                'message' => 'City added successfully.'
             ]);
+
         } else {
             http_response_code(500);
             echo json_encode(['error' => 'Failed to add city to favorites.']);
         }
     }
 
-    /**
-     * Töröl egy várost a felhasználó kedvencei közül.
-     */
     public function deleteFavorite($userData, $cityId) {
         $userId = $userData->data->id;
         

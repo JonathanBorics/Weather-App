@@ -1,5 +1,5 @@
 // src/services/AdminService.js
-import apiClient from "../api/client";
+import { apiClient } from "../api/client";
 
 /**
  * Lekéri az összes felhasználót. Admin jogosultság szükséges.

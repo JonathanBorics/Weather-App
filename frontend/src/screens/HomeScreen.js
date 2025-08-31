@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"; // Az useEffect-et is importáljuk
 import { View, StyleSheet, FlatList, ActivityIndicator } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Button, Text,useTheme } from "react-native-paper";
 import { useAuth } from "../contexts/AuthContext";
 import { useCities } from "../contexts/CityContext";
 import { getGuestCitiesWeather } from "../services/WeatherService";

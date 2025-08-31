@@ -1,24 +1,12 @@
+# backend/.htaccess
+
 RewriteEngine On
 
-# --------------------------- JAVÍTÁS ---------------------------
-# Ez a két sor biztosítja, hogy az Apache továbbadja
-# az "Authorization" fejlécet a PHP szkriptnek. Enélkül a
-# JWT token ellenőrzése nem működik.
+# Ez a két sor biztosítja, hogy az "Authorization" fejléc eljusson a PHP-hoz.
 RewriteCond %{HTTP:Authorization} .
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-# -----------------------------------------------------------
 
-# CORS headers
-Header always set Access-Control-Allow-Origin "*"
-Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
-
-# Handle preflight OPTIONS requests
-# Módosítva: A 204 No Content a szabványos válasz az OPTIONS kérésekre.
-RewriteCond %{REQUEST_METHOD} OPTIONS
-RewriteRule ^(.*)$ $1 [R=204,L]
-
-# Redirect all other requests to index.php
+# Minden más kérést irányítsunk az index.php-ra
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]

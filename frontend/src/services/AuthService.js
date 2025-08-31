@@ -1,5 +1,5 @@
 // src/services/AuthService.js
-import apiClient from "../api/client"; // Beimportáljuk a központi, beállított API kliensünket
+import { apiClient } from "../api/client"; // Beimportáljuk a központi, beállított API kliensünket
 
 /**
  * Bejelentkezteti a felhasználót a backend API hívásával.
@@ -88,4 +88,3 @@ export const resetPassword = async (token, password) => {
     throw new Error("Szerver hiba vagy nincs internetkapcsolat.");
   }
 };
-

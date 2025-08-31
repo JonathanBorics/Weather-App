@@ -1,5 +1,5 @@
 // src/services/WeatherService.js
-import apiClient from "../api/client";
+import { apiClient } from "../api/client";
 
 /**
  * Lekéri a bejelentkezett felhasználó kedvenc városainak aktuális időjárását.
