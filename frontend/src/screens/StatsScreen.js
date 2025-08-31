@@ -51,11 +51,13 @@ const StatsScreen = () => {
           <Card style={styles.card}>
             <List.Item
               title={`${index + 1}. ${item.cityName}`}
+              // Most már a helyes 'popularity' mezőt használjuk
               description={`Népszerűség: ${item.popularity}`}
               left={() => <Text style={styles.ranking}>{index + 1}</Text>}
             />
             <ProgressBar
-              progress={item.popularity / 100}
+              // Itt pedig a service-ben kiszámolt 'progress' értéket
+              progress={item.progress}
               style={styles.progressBar}
             />
           </Card>

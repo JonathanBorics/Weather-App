@@ -41,42 +41,7 @@ const ProfileScreen = () => {
         Profilom
       </Text>
 
-      <Text variant="titleMedium" style={styles.subHeader}>
-        Jelszó megváltoztatása
-      </Text>
-      <TextInput
-        label="Jelenlegi jelszó"
-        value={currentPassword}
-        onChangeText={setCurrentPassword}
-        secureTextEntry
-        style={styles.input}
-        disabled={isLoading}
-      />
-      <TextInput
-        label="Új jelszó"
-        value={newPassword}
-        onChangeText={setNewPassword}
-        secureTextEntry
-        style={styles.input}
-        disabled={isLoading}
-      />
-      <TextInput
-        label="Új jelszó megerősítése"
-        value={confirmNewPassword}
-        onChangeText={setConfirmNewPassword}
-        secureTextEntry
-        style={styles.input}
-        disabled={isLoading}
-      />
-      <Button
-        mode="contained"
-        onPress={handlePasswordChange}
-        loading={isLoading}
-        disabled={isLoading}
-        style={styles.button}
-      >
-        Jelszó módosítása
-      </Button>
+     
 
       {/* --- 3. ITT AZ ÚJ GOMB --- */}
       <Divider style={styles.divider} />

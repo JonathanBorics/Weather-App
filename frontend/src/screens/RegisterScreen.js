@@ -1,18 +1,24 @@
-import React, { useState } from "react"; // A 'useContext' importra már nincs szükség
+// src/screens/RegisterScreen.js
+
+import React, { useState } from "react";
 import { View, StyleSheet, Alert } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
-import { useAuth } from "../contexts/AuthContext"; // <-- HELYES IMPORT
+import { useAuth } from "../contexts/AuthContext";
 import { register } from "../services/AuthService";
 
 const RegisterScreen = ({ navigation }) => {
-  const { signIn } = useAuth(); // <-- A HELYES HOOK HASZNÁLATA
-
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
+    // JAVÍTÁS: Üres mezők ellenőrzése
+    if (!email || !password || !confirmPassword) {
+      Alert.alert("Hiba", "Minden mező kitöltése kötelező!");
+      return;
+    }
     if (password !== confirmPassword) {
       Alert.alert("Hiba", "A két jelszó nem egyezik!");
       return;
@@ -22,7 +28,6 @@ const RegisterScreen = ({ navigation }) => {
     try {
       const response = await register(email, password);
       if (response.token) {
-        // A register service-nek is a teljes { token, role } objektumot kell visszaadnia!
         signIn(response);
       }
     } catch (error) {
@@ -82,21 +87,25 @@ const RegisterScreen = ({ navigation }) => {
   );
 };
 
+// Ugyanaz a stílus, mint a LoginScreen-en
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     padding: 20,
+    backgroundColor: "#fff",
   },
   title: {
     textAlign: "center",
-    marginBottom: 24,
+    marginBottom: 32,
+    fontWeight: "bold",
   },
   input: {
     marginBottom: 16,
   },
   button: {
     marginTop: 8,
+    paddingVertical: 4,
   },
 });
 

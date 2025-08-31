@@ -4,6 +4,8 @@ import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ManageCitiesScreen from "../screens/ManageCitiesScreen";
 import AdminNavigator from "./AdminNavigator";
+import ArchiveScreen from "../screens/ArchiveScreen";
+
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -32,6 +34,7 @@ const AppNavigator = () => {
 
       {userToken ? (
         <>
+        
           {/* Bejelentkezett felhasználói fülek */}
           <Tab.Screen
             name="ManageCities"
@@ -41,6 +44,21 @@ const AppNavigator = () => {
               tabBarIcon: ({ color, size }) => (
                 <MaterialCommunityIcons
                   name="city-variant"
+                  color={color}
+                  size={size}
+                />
+              ),
+            }}
+          />
+
+          <Tab.Screen
+            name="Archive"
+            component={ArchiveScreen}
+            options={{
+              title: "Archívum",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="archive-outline"
                   color={color}
                   size={size}
                 />

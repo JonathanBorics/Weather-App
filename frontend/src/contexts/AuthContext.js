@@ -14,8 +14,8 @@ export const AuthProvider = ({ children }) => {
   const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-useEffect(() => {
-    console.log('--- AUTH CONTEXT: Állapot megváltozott! ---', {
+  useEffect(() => {
+    console.log("--- AUTH CONTEXT: Állapot megváltozott! ---", {
       token: userToken,
       role: userRole,
     });
@@ -37,26 +37,36 @@ useEffect(() => {
     bootstrapAsync();
   }, []);
 
-const signIn = useCallback(async (data) => {
-    console.log('--- AUTH CONTEXT: signIn funkció meghívva ---', data);
+  const signIn = useCallback(async (data) => {
+    console.log("--- AUTH CONTEXT: signIn funkció meghívva ---", data);
     try {
       const { token, role } = data;
       setUserToken(token);
       setUserRole(role);
-      console.log('--- AUTH CONTEXT: setUserToken és setUserRole beállítva. ---');
-      await SecureStore.setItemAsync('userToken', token);
-      await SecureStore.setItemAsync('userRole', role);
-      console.log('--- AUTH CONTEXT: Adatok elmentve a SecureStore-ba. ---');
+      console.log(
+        "--- AUTH CONTEXT: setUserToken és setUserRole beállítva. ---"
+      );
+      await SecureStore.setItemAsync("userToken", token);
+      await SecureStore.setItemAsync("userRole", role);
+      console.log("--- AUTH CONTEXT: Adatok elmentve a SecureStore-ba. ---");
     } catch (error) {
-      console.error('--- AUTH CONTEXT HIBA: Hiba a signIn során ---', error);
+      console.error("--- AUTH CONTEXT HIBA: Hiba a signIn során ---", error);
     }
   }, []);
 
   const signOut = useCallback(async () => {
-    setUserToken(null);
-    setUserRole(null);
-    await SecureStore.deleteItemAsync("userToken");
-    await SecureStore.deleteItemAsync("userRole");
+    try {
+      setUserToken(null);
+      setUserRole(null);
+      await SecureStore.deleteItemAsync("userToken");
+      await SecureStore.deleteItemAsync("userRole");
+    } catch (error) {
+      // Bár ritka, a SecureStore is dobhat hibát. Érdemes lekezelni.
+      console.error(
+        "--- AUTH CONTEXT HIBA: Hiba a signOut során (SecureStore) ---",
+        error
+      );
+    }
   }, []);
 
   const value = {

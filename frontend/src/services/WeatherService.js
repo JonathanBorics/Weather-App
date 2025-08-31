@@ -1,90 +1,92 @@
+// src/services/WeatherService.js
 import apiClient from "../api/client";
 
-// Egy változó, ami a memóriában tárolja az állapotot, amíg az app fut.
-// Ez szimulálja az adatbázist a frontend oldalon.
-let inMemoryCities = [];
-
-// A jövőben az útvonal '/api/users/me/favorites' lesz.
+/**
+ * Lekéri a bejelentkezett felhasználó kedvenc városainak aktuális időjárását.
+ */
 export const getFavoriteCitiesWeather = async () => {
-  console.log("WeatherService: Városok lekérése...");
+  console.log("WeatherService: Kedvenc városok lekérése...");
   try {
-    // Csak akkor hívjuk az API-t, ha a memóriában lévő lista még üres.
-    // Így elkerüljük a felesleges hívásokat, amikor a képernyők között navigálunk.
-    if (inMemoryCities.length === 0) {
-      const response = await apiClient.get("/users");
-      const transformedData = response.data.map((user) => ({
-        id: user.id.toString(),
-        cityName: user.name,
-        temperature: Math.round(user.address.geo.lat),
-        condition: user.company.catchPhrase.split(" ")[0],
-        icon: user.id % 2 === 0 ? "sun" : "cloud",
-      }));
-      inMemoryCities = transformedData;
-      console.log(
-        "WeatherService: Adatok letöltve az API-ról és tárolva a memóriában."
-      );
-    } else {
-      console.log("WeatherService: Adatok a memóriából szolgáltatva.");
-    }
-    return [...inMemoryCities]; // Mindig a tömb másolatát adjuk vissza!
+    // A apiClient automatikusan hozzáadja a Bearer tokent a header-höz!
+    // A végpontnak tartalmaznia kell az '/api' előtagot.
+    const response = await apiClient.get("/api/cities/favorites");
+    return response.data; // A backend pont a megfelelő formátumot adja vissza.
   } catch (error) {
-    console.error("Hiba történt a városok lekérésekor:", error);
+    console.error("Hiba történt a kedvenc városok lekérésekor:", error);
+    // Dobjuk tovább a hibát, hogy a hívó komponens kezelni tudja.
     throw error;
   }
 };
 
-// Város hozzáadása (szimulált)
+/**
+ * Hozzáad egy új várost a bejelentkezett felhasználó kedvenceihez.
+ * @param {string} cityName A hozzáadni kívánt város neve.
+ */
 export const addCity = async (cityName) => {
-  console.log(`WeatherService: "${cityName}" hozzáadása...`);
-  // A jövőben itt egy POST kérés lesz: await apiClient.post('/api/users/me/favorites', { cityName });
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newCity = {
-        id: Math.random().toString(), // Ideiglenes, egyedi ID
-        cityName: cityName,
-        temperature: Math.floor(Math.random() * 30),
-        condition: "Ismeretlen",
-        icon: "cloud",
-      };
-      inMemoryCities.push(newCity);
-      console.log("WeatherService: Város hozzáadva a memóriához.");
-      resolve(newCity);
-    }, 500); // 0.5s késleltetés
-  });
+  console.log(`WeatherService: "${cityName}" hozzáadása a szerveren...`);
+  try {
+    const response = await apiClient.post("/api/cities/favorites", {
+      cityName: cityName, // A backend ezt a formátumot várja.
+    });
+    return response.data; // Visszaadjuk a backend válaszát (pl. { id, cityName, message })
+  } catch (error) {
+    console.error(`Hiba történt "${cityName}" hozzáadásakor:`, error);
+    throw error;
+  }
 };
 
-// Város törlése (szimulált)
+/**
+ * Töröl egy várost a bejelentkezett felhasználó kedvencei közül.
+ * @param {string|number} cityId A törlendő város ID-ja.
+ */
 export const deleteCity = async (cityId) => {
-  console.log(`WeatherService: Város törlése (ID: ${cityId})...`);
-  // A jövőben itt egy DELETE kérés lesz: await apiClient.delete(`/api/users/me/favorites/${cityId}`);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      inMemoryCities = inMemoryCities.filter((city) => city.id !== cityId);
-      console.log("WeatherService: Város törölve a memóriából.");
-      resolve({ success: true });
-    }, 500);
-  });
+  console.log(`WeatherService: Város törlése a szerverről (ID: ${cityId})...`);
+  try {
+    const response = await apiClient.delete(`/api/cities/favorites/${cityId}`);
+    return response.data; // Visszaadjuk a sikeres üzenetet.
+  } catch (error) {
+    console.error(`Hiba történt a(z) ${cityId} ID-jű város törlésekor:`, error);
+    throw error;
+  }
 };
 
+/**
+ * Lekéri az 5 vendég város időjárási adatát.
+ */
 export const getGuestCitiesWeather = async () => {
   console.log("WeatherService: Vendég városok lekérése az API-ról...");
   try {
-    // A JSONPlaceholder API-t használjuk, és a _limit=5 paraméterrel csak 5 elemet kérünk le.
-    const response = await apiClient.get("/users?_limit=5");
-
-    // Ugyanazt az adatátalakító logikát használjuk, mint korábban
-    const transformedData = response.data.map((user) => ({
-      id: user.id.toString(),
-      cityName: user.address.city, // Most használjuk a valódi városnevet
-      temperature: Math.round(user.address.geo.lat),
-      condition: "Előrejelzés",
-      icon: user.id % 2 === 0 ? "sun" : "cloud",
-    }));
-
-    console.log("WeatherService: Vendég adatok sikeresen megérkeztek.");
-    return transformedData;
+    const response = await apiClient.get("/api/guest/weather");
+    return response.data;
   } catch (error) {
     console.error("Hiba történt a vendég adatok lekérésekor:", error);
+    throw error;
+  }
+};
+
+/**
+ * Lekéri egy adott város archív időjárási adatait.
+ * @param {object} filters A szűrőket tartalmazó objektum, pl. { cityId: 1 }
+ */
+export const getWeatherArchive = async (filters) => {
+  console.log("WeatherService: Archív adatok lekérése a szerverről:", filters);
+
+  const cityId = filters?.cityId;
+  if (!cityId) {
+    console.warn(
+      "WeatherService: Nincs cityId megadva az archívum lekéréséhez."
+    );
+    return []; // Üres listát adunk vissza, ha nincs ID.
+  }
+
+  try {
+    const response = await apiClient.get(`/api/weather/archive/${cityId}`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Hiba az archív adatok lekérésekor (City ID: ${cityId}):`,
+      error
+    );
     throw error;
   }
 };

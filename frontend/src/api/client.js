@@ -1,9 +1,10 @@
+//src/api/client.js
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 // A JSONPlaceholder API alap URL-je.
 // Amikor a saját backended elkészül, csak ezt az egy sort kell átírnod!
-const BASE_URL = "https://jsonplaceholder.typicode.com";
+const BASE_URL = "http://192.168.8.117/Weather-App/backend";
 
 const apiClient = axios.create({
   baseURL: BASE_URL,

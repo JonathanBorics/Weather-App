@@ -1,47 +1,31 @@
-import React, { useState } from "react"; // A 'useContext' importra már nincs szükség
+// src/screens/LoginScreen.js
+// EZ A FÁJL TÖKÉLETES, NINCS SZÜKSÉG MÓDOSÍTÁSRA.
+
+import React, { useState } from "react";
 import { View, StyleSheet, Alert } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
-import { useAuth } from "../contexts/AuthContext"; // <-- HELYES IMPORT
+import { useAuth } from "../contexts/AuthContext";
 import { login } from "../services/AuthService";
 
 const LoginScreen = ({ navigation }) => {
-  const { signIn } = useAuth(); // <-- A HELYES HOOK HASZNÁLATA
-
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
-    console.log("--- LOGIN SCREEN: handleLogin elindult ---");
     setIsLoading(true);
     try {
       const response = await login(email, password);
-      console.log(
-        "--- LOGIN SCREEN: Service válasza megérkezett ---",
-        response
-      );
-
       if (response && response.token) {
-        console.log(
-          "--- LOGIN SCREEN: Token létezik, signIn hívás indul... ---"
-        );
         signIn(response);
-        console.log("--- LOGIN SCREEN: signIn hívás befejeződött. ---");
       } else {
-        console.error(
-          "--- LOGIN SCREEN HIBA: A service nem adott vissza tokent! ---",
-          response
-        );
         Alert.alert("Hiba", "Ismeretlen hiba történt a bejelentkezés során.");
       }
     } catch (error) {
-      console.error("--- LOGIN SCREEN HIBA: a service hibát dobott ---", error);
       Alert.alert("Hiba", error.message);
     } finally {
       setIsLoading(false);
-      console.log(
-        "--- LOGIN SCREEN: handleLogin befejeződött (finally blokk) ---"
-      );
     }
   };
 
@@ -100,16 +84,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
+    backgroundColor: "#fff", // Adunk egy tiszta fehér hátteret
   },
   title: {
     textAlign: "center",
-    marginBottom: 24,
+    marginBottom: 32, // Nagyobb tér a címnek
+    fontWeight: "bold",
   },
   input: {
     marginBottom: 16,
   },
   button: {
     marginTop: 8,
+    paddingVertical: 4, // Kényelmesebb gombméret
   },
   forgotPasswordButton: {
     marginTop: 16,
