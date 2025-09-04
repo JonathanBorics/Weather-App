@@ -1,0 +1,1465 @@
+{
+	"info": {
+		"_postman_id": "f359c3ed-8cdb-429f-8106-e068a5afe86d",
+		"name": "Weather-App API (full, path archive)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39875826"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"confirmPassword\": \"{{password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Register",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"confirmPassword\": \"{{password}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:15:23 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"User registered. Please check your email to activate your account.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Activate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/activate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"activate"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Activate",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/auth/activate?email=kroland96@gmail.com&token=1a088a3daa9c65ec077eee0f439731aec103fd9bbc147eecea61601a1db865ea",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"activate"
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "kroland96@gmail.com"
+										},
+										{
+											"key": "token",
+											"value": "1a088a3daa9c65ec077eee0f439731aec103fd9bbc147eecea61601a1db865ea"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:25:53 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Invalid token or email.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());",
+									"",
+									"var data={};try{data=pm.response.json();}catch(e){}",
+									"if(data.token){pm.environment.set('token',data.token);}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:32:57 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJZT1VSX0FQUF9VUkwiLCJhdWQiOiJZT1VSX0FQUF9VUkwiLCJpYXQiOjE3NTY5MzUxNzcsIm5iZiI6MTc1NjkzNTE3NywiZXhwIjoxNzU3MDIxNTc3LCJkYXRhIjp7ImlkIjoxNCwiZW1haWwiOiJrcm9sYW5kOTZAZ21haWwuY29tIiwicm9sZSI6InVzZXIifX0.QHcc1S0Xw9rHfLwg0jTo10Y1sYTOHObIQ_Q7lZC2FAo\",\n    \"role\": \"user\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Forgot Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{email}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forgot-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"forgot-password"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Forgot Password",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"{{email}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/forgot-password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"forgot-password"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:34:37 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"If an account with that email exists, a password reset link has been sent.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Reset Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"{{newPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Reset Password",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"{{newPassword}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/auth/reset-password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"auth",
+										"reset-password"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:38:04 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Password has been reset successfully.\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Guest",
+			"item": [
+				{
+					"name": "Guest Weather",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/guest/weather",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"guest",
+								"weather"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Guest Weather",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/guest/weather",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"guest",
+										"weather"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:39:20 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"cityName\": \"London\",\n        \"country\": \"GB\",\n        \"temperature\": 15.94,\n        \"description\": \"tiszta égbolt\",\n        \"icon\": \"01n\"\n    },\n    {\n        \"cityName\": \"Paris\",\n        \"country\": \"FR\",\n        \"temperature\": 19.01,\n        \"description\": \"kevés felhő\",\n        \"icon\": \"02n\"\n    },\n    {\n        \"cityName\": \"New York\",\n        \"country\": \"US\",\n        \"temperature\": 23.14,\n        \"description\": \"tiszta égbolt\",\n        \"icon\": \"01d\"\n    },\n    {\n        \"cityName\": \"Tokyo\",\n        \"country\": \"JP\",\n        \"temperature\": 27.01,\n        \"description\": \"erős felhőzet\",\n        \"icon\": \"04d\"\n    },\n    {\n        \"cityName\": \"Sydney\",\n        \"country\": \"AU\",\n        \"temperature\": 14.98,\n        \"description\": \"tiszta égbolt\",\n        \"icon\": \"01d\"\n    }\n]"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Cities (Favorites)",
+			"item": [
+				{
+					"name": "Get Favorites",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cities/favorites",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cities",
+								"favorites"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Favorites",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/cities/favorites",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"cities",
+										"favorites"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:40:12 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "[]"
+						}
+					]
+				},
+				{
+					"name": "Add Favorite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cityName\": \"{{cityName}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cities/favorites",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cities",
+								"favorites"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Add Favorite",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"cityName\": \"{{cityName}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/cities/favorites",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"cities",
+										"favorites"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:41:03 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 1,\n    \"cityName\": \"Budapest\",\n    \"message\": \"City added successfully.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove Favorite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cities/favorites/{{favoriteId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cities",
+								"favorites",
+								"{{favoriteId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Remove Favorite",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/cities/favorites/{{favoriteId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"cities",
+										"favorites",
+										"{{favoriteId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:41:56 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"City removed from favorites.\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Weather",
+			"item": [
+				{
+					"name": "Get Archive (by cityId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/weather/archive/{{cityId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"weather",
+								"archive",
+								"{{cityId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get Archive (by cityId)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/weather/archive/{{cityId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"weather",
+										"archive",
+										"{{cityId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:43:24 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"date\": \"2025-09-03\",\n        \"temperature\": 20.56,\n        \"description\": \"enyhe eső\",\n        \"icon\": \"10n\",\n        \"humidity\": 71,\n        \"wind_speed\": 1.34\n    },\n    {\n        \"date\": \"2025-08-31\",\n        \"temperature\": 24.48,\n        \"description\": \"erős felhőzet\",\n        \"icon\": \"04d\",\n        \"humidity\": 70,\n        \"wind_speed\": 2.68\n    },\n    {\n        \"date\": \"2025-08-30\",\n        \"temperature\": 20.21,\n        \"description\": \"tiszta égbolt\",\n        \"icon\": \"01d\",\n        \"humidity\": 84,\n        \"wind_speed\": 3.09\n    }\n]"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "List Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List Users",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/admin/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"users"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Wed, 03 Sep 2025 21:49:48 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 1,\n        \"email\": \"teszt.felhasznalo@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 1,\n        \"created_at\": \"2025-08-29 16:21:53\"\n    },\n    {\n        \"id\": 3,\n        \"email\": \"teszt.3felhasznalo@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-29 17:53:06\"\n    },\n    {\n        \"id\": 4,\n        \"email\": \"tesztiii.3felhasznalo@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-29 17:53:34\"\n    },\n    {\n        \"id\": 5,\n        \"email\": \"admin@weatherapp.com\",\n        \"role\": \"admin\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-29 17:56:03\"\n    },\n    {\n        \"id\": 6,\n        \"email\": \"teszte.felhasznalo@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-29 18:03:32\"\n    },\n    {\n        \"id\": 7,\n        \"email\": \"admiin@admin.com\",\n        \"role\": \"admin\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-31 08:04:59\"\n    },\n    {\n        \"id\": 8,\n        \"email\": \"postman-test@email.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-31 11:27:49\"\n    },\n    {\n        \"id\": 9,\n        \"email\": \"jonathanborics97@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-31 11:35:59\"\n    },\n    {\n        \"id\": 10,\n        \"email\": \"test.user+1@example.com\",\n        \"role\": \"user\",\n        \"is_active\": 1,\n        \"created_at\": \"2025-09-02 06:09:55\"\n    },\n    {\n        \"id\": 11,\n        \"email\": \"koncc.roland999@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-09-03 20:27:07\"\n    },\n    {\n        \"id\": 12,\n        \"email\": \"kkonc.roland996@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 1,\n        \"created_at\": \"2025-09-03 21:31:11\"\n    },\n    {\n        \"id\": 13,\n        \"email\": \"kacsumacsu@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 1,\n        \"created_at\": \"2025-09-03 21:35:33\"\n    },\n    {\n        \"id\": 14,\n        \"email\": \"kroland96@gmail.com\",\n        \"role\": \"admin\",\n        \"is_active\": 1,\n        \"created_at\": \"2025-09-03 23:15:23\"\n    }\n]"
+						},
+						{
+							"name": "List Users",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/admin/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"users"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Thu, 04 Sep 2025 05:13:01 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 1,\n        \"email\": \"teszt.felhasznalo@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 1,\n        \"created_at\": \"2025-08-29 16:21:53\"\n    },\n    {\n        \"id\": 3,\n        \"email\": \"teszt.3felhasznalo@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-29 17:53:06\"\n    },\n    {\n        \"id\": 4,\n        \"email\": \"tesztiii.3felhasznalo@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-29 17:53:34\"\n    },\n    {\n        \"id\": 5,\n        \"email\": \"admin@weatherapp.com\",\n        \"role\": \"admin\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-29 17:56:03\"\n    },\n    {\n        \"id\": 6,\n        \"email\": \"teszte.felhasznalo@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-29 18:03:32\"\n    },\n    {\n        \"id\": 7,\n        \"email\": \"admiin@admin.com\",\n        \"role\": \"admin\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-31 08:04:59\"\n    },\n    {\n        \"id\": 8,\n        \"email\": \"postman-test@email.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-31 11:27:49\"\n    },\n    {\n        \"id\": 9,\n        \"email\": \"jonathanborics97@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-08-31 11:35:59\"\n    },\n    {\n        \"id\": 10,\n        \"email\": \"test.user+1@example.com\",\n        \"role\": \"user\",\n        \"is_active\": 1,\n        \"created_at\": \"2025-09-02 06:09:55\"\n    },\n    {\n        \"id\": 11,\n        \"email\": \"koncc.roland999@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 0,\n        \"created_at\": \"2025-09-03 20:27:07\"\n    },\n    {\n        \"id\": 12,\n        \"email\": \"kkonc.roland996@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 1,\n        \"created_at\": \"2025-09-03 21:31:11\"\n    },\n    {\n        \"id\": 13,\n        \"email\": \"kacsumacsu@gmail.com\",\n        \"role\": \"user\",\n        \"is_active\": 1,\n        \"created_at\": \"2025-09-03 21:35:33\"\n    },\n    {\n        \"id\": 14,\n        \"email\": \"kroland96@gmail.com\",\n        \"role\": \"admin\",\n        \"is_active\": 1,\n        \"created_at\": \"2025-09-03 23:15:23\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Update User Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"is_active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/users/{{userId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{userId}}",
+								"status"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Update User Status",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"is_active\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/admin/users/{{userId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"users",
+										"{{userId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Thu, 04 Sep 2025 05:14:59 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"User status updated successfully.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Delete User",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/admin/users/{{userId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"users",
+										"{{userId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Thu, 04 Sep 2025 05:15:14 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"User deleted successfully.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Popularity Stats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is valid\", function () {",
+									"  pm.expect(pm.response.code).to.be.oneOf([200,201,204,400,401,403,404,409,500]);",
+									"});",
+									"pm.environment.set(\"lastResponse\", pm.response.text());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/admin/stats/popularity",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"stats",
+								"popularity"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Popularity Stats",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/admin/stats/popularity",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"admin",
+										"stats",
+										"popularity"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Thu, 04 Sep 2025 05:15:34 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Apache"
+								},
+								{
+									"key": "Vary",
+									"value": "Authorization"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5, max=100"
+								},
+								{
+									"key": "Connection",
+									"value": "Keep-Alive"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=UTF-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 1,\n        \"name\": \"Budapest\",\n        \"country\": \"HU\",\n        \"favorite_count\": 5\n    },\n    {\n        \"id\": 4,\n        \"name\": \"Belgrade\",\n        \"country\": \"RS\",\n        \"favorite_count\": 2\n    },\n    {\n        \"id\": 3,\n        \"name\": \"City of Subotica\",\n        \"country\": \"RS\",\n        \"favorite_count\": 2\n    },\n    {\n        \"id\": 5,\n        \"name\": \"Szeged\",\n        \"country\": \"HU\",\n        \"favorite_count\": 2\n    },\n    {\n        \"id\": 2,\n        \"name\": \"London\",\n        \"country\": \"GB\",\n        \"favorite_count\": 1\n    }\n]"
+						}
+					]
+				}
+			]
+		}
+	]
+}

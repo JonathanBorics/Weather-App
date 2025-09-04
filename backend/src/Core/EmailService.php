@@ -51,4 +51,64 @@ class EmailService {
     exit;
         }
     }
+
+    public function sendActivationEmail($recipientEmail, $token) {
+    try {
+        // Debug log
+        error_log("=== EMAIL KÜLDÉS KEZDÉS ===");
+        error_log("Címzett: " . $recipientEmail);
+        error_log("Token: " . $token);
+        
+        // Mailer reset
+        $this->mailer->clearAddresses();
+        $this->mailer->clearAttachments();
+        
+        // Címzettek
+        $this->mailer->setFrom($_ENV['MAIL_FROM'], 'Időjárás App');
+        $this->mailer->addAddress($recipientEmail);
+
+        // Tartalom
+        $this->mailer->isHTML(true);
+        $this->mailer->Subject = 'Fiók aktiválás - Időjárás App';
+        
+        $activationLink = "http://localhost:3000/activate?token=" . $token;
+        error_log("Aktiválási link: " . $activationLink);
+
+        $this->mailer->Body = "
+            <h2>Üdvözöljük az Időjárás App-ban!</h2>
+            <p>Kedves Felhasználó!</p>
+            <p>Köszönjük a regisztrációt! A fiókja aktiválásához kattintson az alábbi linkre:</p>
+            <p><a href='{$activationLink}' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Fiók aktiválása</a></p>
+            <p>Vagy másolja be ezt a linket a böngészőjébe:<br><a href='{$activationLink}'>{$activationLink}</a></p>
+            <p><strong>Fontos:</strong> Ez a link 24 órán belül lejár.</p>
+            <p>Ha nem ön regisztrált, kérjük hagyja figyelmen kívül ezt az emailt.</p>
+            <br>
+            <p>Üdvözlettel,<br>Az Időjárás App csapata</p>
+        ";
+        
+        $this->mailer->AltBody = "
+            Üdvözöljük az Időjárás App-ban!
+            
+            A fiókja aktiválásához látogasson el erre a linkre: {$activationLink}
+            
+            Ez a link 24 órán belül lejár.
+            
+            Üdvözlettel,
+            Az Időjárás App csapata
+        ";
+
+        error_log("Email küldés megkezdése...");
+        $result = $this->mailer->send();
+        error_log("Email küldés eredménye: " . ($result ? 'SIKERES' : 'SIKERTELEN'));
+        
+        return $result;
+        
+    } catch (Exception $e) {
+        error_log('=== EMAIL HIBA ===');
+        error_log('Exception: ' . $e->getMessage());
+        error_log('SMTP Error: ' . $this->mailer->ErrorInfo);
+        error_log('==================');
+        return false;
+    }
+}
 }

@@ -1,0 +1,266 @@
+/* App.css */
+.App {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+}
+
+/* Weather card styles */
+.weather-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  backdrop-filter: blur(10px);
+}
+
+.weather-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.weather-icon {
+  width: 60px;
+  height: 60px;
+}
+
+/* Forms */
+.form-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 50px auto;
+  backdrop-filter: blur(10px);
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, #74b9ff, #0984e3);
+  border: none;
+  padding: 10px 30px;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(45deg, #0984e3, #74b9ff);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Admin panel */
+.admin-panel {
+  background: #fff;
+  min-height: calc(100vh - 80px);
+}
+
+/* Navbar fixes */
+.navbar-brand {
+  font-weight: 600;
+}
+
+.navbar-toggler {
+  border: none;
+  padding: 4px 8px;
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+/* Table responsive improvements */
+.table-responsive {
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile optimizations */
+@media (max-width: 767.98px) {
+  .weather-card {
+    margin: 5px 0;
+    padding: 15px;
+  }
+
+  .form-container {
+    margin: 20px 10px;
+    padding: 20px;
+    max-width: none;
+  }
+
+  .weather-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  /* Admin panel mobile */
+  .admin-panel .container-fluid {
+    padding: 10px;
+  }
+
+  .admin-panel h1 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  /* Tab responsive */
+  .nav-tabs .nav-link {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+
+  /* Table mobile */
+  .table-responsive table {
+    font-size: 0.85rem;
+  }
+
+  .table td,
+  .table th {
+    padding: 8px 4px;
+    white-space: nowrap;
+  }
+
+  .btn-sm {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  /* Cards mobile */
+  .card-header h5 {
+    font-size: 1rem;
+  }
+
+  /* Form controls mobile */
+  .form-control,
+  .form-select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Modal mobile */
+  .modal-dialog {
+    margin: 10px;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  .weather-card {
+    margin: 8px 5px;
+    padding: 18px;
+  }
+
+  .form-container {
+    padding: 25px;
+  }
+
+  .admin-panel .container-fluid {
+    padding: 15px;
+  }
+}
+
+/* Desktop large screens */
+@media (min-width: 1200px) {
+  .weather-card {
+    margin: 12px;
+    padding: 25px;
+  }
+
+  .container-custom {
+    max-width: 1400px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .weather-card:hover {
+    transform: none;
+  }
+
+  .btn:hover {
+    transform: none;
+  }
+
+  /* Larger touch targets */
+  .btn-sm {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 12px;
+  }
+
+  .nav-tabs .nav-link {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Dark mode support (system preference) */
+@media (prefers-color-scheme: dark) {
+  .weather-card,
+  .form-container {
+    background: rgba(40, 44, 52, 0.95);
+    color: #ffffff;
+  }
+
+  .admin-panel {
+    background: #2c3e50;
+    color: #ffffff;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .weather-card:hover {
+    transform: none;
+  }
+
+  .btn-primary:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .weather-card,
+  .form-container {
+    border: 2px solid #000;
+  }
+
+  .btn-primary {
+    border: 2px solid #000;
+  }
+}
+
+/* Print styles */
+@media print {
+  .navbar,
+  .btn,
+  .modal {
+    display: none !important;
+  }
+
+  .admin-panel {
+    background: white !important;
+    color: black !important;
+  }
+
+  .weather-card,
+  .form-container {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+}

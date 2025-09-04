@@ -1,0 +1,381 @@
+openapi: 3.0.3
+info:
+  title: Weather-App API
+  version: "1.0.0"
+  description: |
+    OpenAPI (Swagger) documentation for the Weather-App backend.
+    Base URL: `https://boys.stud.vts.su.ac.rs/weather-app/backend/api`
+
+servers:
+  - url: https://boys.stud.vts.su.ac.rs/weather-app/backend/api
+
+tags:
+  - name: Auth
+  - name: Guest
+  - name: Favorites
+  - name: Weather
+  - name: Admin
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    Message:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    User:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        email: { type: string, format: email, example: kroland96@gmail.com }
+        role: { type: string, example: user }
+        is_active: { type: boolean, example: true }
+        created_at: { type: string, format: date-time }
+      required: [id, email, role, is_active]
+
+    Favorite:
+      type: object
+      properties:
+        id: { type: integer, example: 10 }
+        cityId: { type: integer, example: 1 }
+        cityName: { type: string, example: Budapest }
+        created_at: { type: string, format: date-time }
+      required: [id, cityId]
+
+    CityWeather:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: Budapest }
+        country: { type: string, example: HU }
+        lat: { type: number, format: float, example: 47.4979937 }
+        lon: { type: number, format: float, example: 19.0403594 }
+        temperature: { type: number, format: float, example: 21.4 }
+        description: { type: string, example: overcast clouds }
+        icon: { type: string, example: 04d }
+        humidity: { type: integer, example: 60 }
+        wind_speed: { type: number, format: float, example: 3.5 }
+
+    WeatherArchive:
+      type: object
+      properties:
+        id: { type: integer, example: 101 }
+        city_id: { type: integer, example: 1 }
+        temp: { type: number, format: float, example: 19.7 }
+        condition: { type: string, example: Clouds }
+        description: { type: string, example: broken clouds }
+        icon: { type: string, example: 04n }
+        humidity: { type: integer, example: 72 }
+        wind_speed: { type: number, format: float, example: 2.1 }
+        collected_at: { type: string, format: date-time, example: 2025-09-03T14:05:00Z }
+
+paths:
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+                confirmPassword: { type: string, format: password }
+              required: [email, password]
+            example:
+              email: kroland96@gmail.com
+              password: Halalfej321!
+              confirmPassword: Halalfej321!
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string, example: eyJhbGciOi... }
+                  message: { type: string, example: Activation email sent. }
+        "400": { description: Bad request, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        "409": { description: Email already exists, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        "500": { description: Server error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /auth/activate:
+    get:
+      tags: [Auth]
+      summary: Activate account via email + token
+      parameters:
+        - in: query
+          name: email
+          required: true
+          schema: { type: string, format: email }
+        - in: query
+          name: token
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Account activated
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+        "400": { description: Missing or invalid params, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        "404": { description: Invalid token or email, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with credentials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+              required: [email, password]
+            example:
+              email: kroland96@gmail.com
+              password: Halalfej321!
+      responses:
+        "200":
+          description: JWT issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+                  role: { type: string, example: user }
+        "400": { description: Bad request, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        "401": { description: Invalid credentials, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        "403": { description: Account not activated (if enforced), content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Request password reset link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+              required: [email]
+            example:
+              email: kroland96@gmail.com
+      responses:
+        "200":
+          description: Always returns OK (privacy)
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password with token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token: { type: string }
+                password: { type: string, format: password }
+                confirmPassword: { type: string, format: password }
+              required: [token, password]
+            example:
+              token: 0123456789abcdef
+              password: ujJelszo123!
+              confirmPassword: ujJelszo123!
+      responses:
+        "200":
+          description: Password updated
+          content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } }
+        "400": { description: Bad request, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /guest/weather:
+    get:
+      tags: [Guest]
+      summary: Get public (guest) weather for cities
+      responses:
+        "200":
+          description: List of cities with current weather
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/CityWeather' }
+
+  /cities/favorites:
+    get:
+      tags: [Favorites]
+      summary: List favorites
+      security: [ { bearerAuth: [] } ]
+      responses:
+        "200":
+          description: Favorite cities for the authenticated user
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Favorite' }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+    post:
+      tags: [Favorites]
+      summary: Add favorite city
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cityName: { type: string }
+              required: [cityName]
+            example:
+              cityName: Budapest
+      responses:
+        "201":
+          description: Favorite created (and archive entry generated)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Favorite' }
+        "400": { description: Bad request, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /cities/favorites/{id}:
+    delete:
+      tags: [Favorites]
+      summary: Remove favorite by ID
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200": { description: Deleted, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }
+        "204": { description: Deleted (no content) }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        "404": { description: Not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /weather/archive/{cityId}:
+    get:
+      tags: [Weather]
+      summary: Get weather archive for a favorite city
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: cityId
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Archive rows (latest first)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/WeatherArchive' }
+        "403": { description: Forbidden (not your favorite), content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        "401": { description: Unauthorized, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: List users
+      security: [ { bearerAuth: [] } ]
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/User' }
+        "403": { description: Forbidden (requires admin), content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /admin/users/{id}:
+    put:
+      tags: [Admin]
+      summary: Update user active status
+      description: Set `is_active` true/false
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_active: { type: boolean }
+              required: [is_active]
+            example:
+              is_active: true
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }
+        "400": { description: Bad body, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        "403": { description: Forbidden (requires admin), content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+    delete:
+      tags: [Admin]
+      summary: Delete user
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200": { description: Deleted, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }
+        "204": { description: Deleted (no content) }
+        "403": { description: Forbidden (requires admin), content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        "404": { description: Not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /admin/stats/popularity:
+    get:
+      tags: [Admin]
+      summary: Most popular cities (favorites count)
+      security: [ { bearerAuth: [] } ]
+      responses:
+        "200":
+          description: List of cities with counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    cityName: { type: string, example: Budapest }
+                    count: { type: integer, example: 12 }
+        "403": { description: Forbidden (requires admin), content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }

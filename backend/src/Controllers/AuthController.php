@@ -8,7 +8,7 @@ use WeatherApp\Core\EmailService;   // <-- ÚJ SOR
 
 class AuthController {
     
-    public function register() {
+  public function register() {
         $data = json_decode(file_get_contents("php://input"));
 
         if (empty($data->email) || empty($data->password)) {
@@ -28,16 +28,20 @@ class AuthController {
         $userId = $userModel->create($data->email, $data->password);
 
         if ($userId) {
-            // Itt jönne az email küldés az aktiváláshoz...
+            // Aktiválási token generálása
+            $activationToken = bin2hex(random_bytes(32));
             
-            // Generáljunk egy tokent a sikeres regisztráció után
-            $token = Auth::generateToken($userId, $data->email, 'user');
+            // Token mentése az adatbázisba
+            if ($userModel->saveActivationToken($userId, $activationToken)) {
+                // Aktiválási email küldése
+                $emailService = new EmailService();
+                $emailService->sendActivationEmail($data->email, $activationToken);
+            }
             
             http_response_code(201);
             echo json_encode([
-                'message' => 'User registered successfully. Please check your email for activation.',
-                'token' => $token,
-                'role' => 'user'
+                'message' => 'User registered successfully. Please check your email for activation link.',
+                'email' => $data->email
             ]);
         } else {
             http_response_code(500);
@@ -64,14 +68,12 @@ class AuthController {
             return;
         }
         
-        // 3. Aktív a felhasználói fiók?
-        // A specifikáció szerint a regisztráció után aktiválni kell,
-        // ezért ezt a feltételt be kell építeni, miután az email küldés kész.
-        // if ($user['is_active'] != 1) {
-        //     http_response_code(403); // Forbidden
-        //     echo json_encode(['error' => 'Account is not activated.']);
-        //     return;
-        // }
+        
+//        if ($user['is_active'] != 1) {
+//     http_response_code(403);
+//     echo json_encode(['error' => 'Account is not activated. Please check your email for activation link.']);
+//     return;
+// }
 
         // Sikeres bejelentkezés, generálunk egy tokent
         $token = Auth::generateToken($user['id'], $user['email'], $user['role']);
@@ -148,4 +150,111 @@ class AuthController {
         }
     }
 
+
+public function activateAccount() {
+    // GET paraméter lekérése
+    $token = $_GET['token'] ?? null;
+    
+    if (empty($token)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Activation token is required.']);
+        return;
+    }
+
+    $userModel = new User();
+    $user = $userModel->findByActivationToken($token);
+    
+    if (!$user) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Invalid or expired activation token.']);
+        return;
+    }
+
+    // Ellenőrizzük, hogy a token nem járt-e le (24 óra)
+    $tokenAge = time() - strtotime($user['activation_token_created']);
+    if ($tokenAge > 86400) { // 24 óra másodpercben
+        http_response_code(410);
+        echo json_encode(['error' => 'Activation token has expired. Please register again.']);
+        return;
+    }
+
+    // Fiók aktiválása
+    if ($userModel->activateUser($user['id'])) {
+        http_response_code(200);
+        echo json_encode([
+            'message' => 'Account successfully activated. You can now log in.',
+            'email' => $user['email']
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to activate account.']);
+    }
+}
+
+public function resendActivation() {
+    $data = json_decode(file_get_contents("php://input"));
+    
+    if (empty($data->email)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Email is required.']);
+        return;
+    }
+
+    $userModel = new User();
+    $user = $userModel->findByEmail($data->email);
+    
+    if (!$user) {
+        // Biztonsági okokból ne mondjuk el, hogy nincs ilyen user
+        http_response_code(200);
+        echo json_encode(['message' => 'If the account exists and is not activated, a new activation email has been sent.']);
+        return;
+    }
+
+    // Ha már aktív a fiók
+    if ($user['is_active']) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Account is already activated.']);
+        return;
+    }
+
+    // Új aktiválási token generálása
+    $activationToken = bin2hex(random_bytes(32));
+    
+    if ($userModel->saveActivationToken($user['id'], $activationToken)) {
+        $emailService = new EmailService();
+        $emailService->sendActivationEmail($data->email, $activationToken);
+        
+        http_response_code(200);
+        echo json_encode(['message' => 'New activation email has been sent.']);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to send activation email.']);
+    }
+}
+
+public function checkActivationStatus() {
+    $email = $_GET['email'] ?? null;
+    
+    if (empty($email)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Email parameter is required.']);
+        return;
+    }
+
+    $userModel = new User();
+    $user = $userModel->findByEmail($email);
+    
+    if (!$user) {
+        http_response_code(404);
+        echo json_encode(['error' => 'User not found.']);
+        return;
+    }
+
+    http_response_code(200);
+    echo json_encode([
+        'email' => $user['email'],
+        'is_active' => (bool)$user['is_active'],
+        'needs_activation' => !$user['is_active']
+    ]);
+}
 }

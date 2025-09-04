@@ -89,4 +89,36 @@ class User {
         return $stmt->execute();
     }
 
+    /**
+ * Aktiválási token mentése
+ */
+public function saveActivationToken($userId, $token) {
+    $query = "UPDATE " . $this->table . " SET activation_token = :token, activation_token_created = NOW() WHERE id = :id";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':token', $token);
+    $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+    return $stmt->execute();
+}
+
+/**
+ * User keresése aktiválási token alapján
+ */
+public function findByActivationToken($token) {
+    $query = "SELECT id, email, is_active, activation_token_created FROM " . $this->table . " WHERE activation_token = :token LIMIT 1";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':token', $token);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+/**
+ * User aktiválása
+ */
+public function activateUser($userId) {
+    $query = "UPDATE " . $this->table . " SET is_active = 1, activation_token = NULL, activation_token_created = NULL WHERE id = :id";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+    return $stmt->execute();
+}
+
 }

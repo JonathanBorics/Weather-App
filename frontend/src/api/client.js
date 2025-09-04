@@ -1,9 +1,13 @@
 // src/api/client.js
+
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
+import Constants from "expo-constants"; // Expo Constants importálása
 
-// --- Platform-specifikus tárhelykezelő (ugyanaz, mint az AuthContext-ben) ---
+// --- Platform-specifikus tárhelykezelő ---
+// Ez a rész biztosítja, hogy a token tárolása működjön weben (localStorage)
+// és natív appban (SecureStore) is.
 const storage = {
   getItem: async (key) => {
     if (Platform.OS !== "web") {
@@ -16,42 +20,67 @@ const storage = {
       return null;
     }
   },
-  // Nincs szükség a setItem/deleteItem-re itt
+  // Erre itt nincs szükség, mert az interceptor csak olvas
 };
 
-// --- Platform-specifikus API URL ---
-let BASE_URL;
-if (Platform.OS === "android") {
-  BASE_URL = "http://10.0.2.2/Weather-App/backend";
-} else if (Platform.OS === "ios") {
-  // CSERÉLD LE EZT A SAJÁT HELYI IP CÍMEDRE!
-  BASE_URL = "http://192.168.8.117/Weather-App/backend";
-} else {
-  // Web
-  BASE_URL = "http://localhost/Weather-App/backend";
-}
+// --- DINAMIKUS API ALAP URL ---
+// Ez a függvény automatikusan meghatározza a backend szerver helyes címét.
+const getBaseUrl = () => {
+  // Lekérdezzük a host URI-t az Expo manifestből (pl. "192.168.1.10:8081")
+  const debuggerHost = Constants.expoConfig?.hostUri;
 
+  // Levágjuk a portot, hogy csak a tiszta IP címet kapjuk meg (pl. "192.168.1.10")
+  const ipAddress = debuggerHost?.split(":")[0];
+
+  // Ha webes platformon fut az app, a localhost a helyes cím
+  if (Platform.OS === "web") {
+    return "http://localhost/Weather-App/backend";
+  }
+
+  // Ha sikerült kinyerni az IP címet, azt használjuk a backend URL-hez
+  // Ez működni fog bármilyen Wi-Fi hálózaton, ahol a gép és a telefon együtt van
+  if (ipAddress) {
+    return `http://${ipAddress}/Weather-App/backend`;
+  }
+
+  // Végső "mentsvár" a hivatalos Android Studió emulátorhoz,
+  // ami a 10.0.2.2 címen éri el a host gépet
+  if (Platform.OS === "android") {
+    return "http://10.0.2.2/Weather-App/backend";
+  }
+
+  // Ha egyik módszer sem működött, hibát dobunk
+  throw new Error("Could not determine API base URL.");
+};
+
+// --- AXIOS KLIENS LÉTREHOZÁSA ---
+// A dinamikusan meghatározott BASE_URL-lel inicializáljuk az Axios klienst.
 const apiClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: getBaseUrl(),
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// --- JAVÍTOTT INTERCEPTOR ---
-// Ez az interceptor most már a mi platform-specifikus 'storage' objektumunkat használja.
+// --- AXIOS INTERCEPTOR ---
+// Ez a kódrészlet minden egyes API kérés elküldése ELŐTT lefut.
+// A feladata, hogy a tárolt tokent hozzáadja a kérés fejlécéhez.
 apiClient.interceptors.request.use(
   async (config) => {
-    // A SecureStore helyett a 'storage' objektum 'getItem' metódusát hívjuk.
+    // A platform-független 'storage' objektumunkat használjuk a token lekérésére
     const token = await storage.getItem("userToken");
     if (token) {
+      // Ha van token, beállítjuk az Authorization fejlécet
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Visszaadjuk a (potenciálisan módosított) kérés konfigurációt
     return config;
   },
   (error) => {
+    // Ha hiba történik a kérés előkészítése közben, elutasítjuk a Promise-t
     return Promise.reject(error);
   }
 );
 
-export { apiClient }; // Marad a nevesített export
+// Nevesített export, hogy máshol importálni tudjuk
+export { apiClient };

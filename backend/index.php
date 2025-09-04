@@ -36,6 +36,7 @@ use WeatherApp\Controllers\AuthController;
 use WeatherApp\Controllers\CitiesController;
 use WeatherApp\Controllers\GuestController;
 use WeatherApp\Controllers\AdminController;
+use WeatherApp\Controllers\DeviceController;
 use WeatherApp\Core\Auth;
 use WeatherApp\Controllers\WeatherController;
 
@@ -100,6 +101,41 @@ switch ($route) {
     case '/api/auth/reset-password':
         if ($requestMethod === 'POST') (new AuthController())->resetPassword();
         break;
+        case '/api/auth/activate':
+    if ($requestMethod === 'GET') (new AuthController())->activateAccount();
+    break;
+    case '/api/auth/resend-activation':
+    if ($requestMethod === 'POST') (new AuthController())->resendActivation();
+    break;
+        // Device tracking endpoints
+case '/api/device/session':
+    if ($requestMethod === 'POST') (new DeviceController())->createSession();
+    break;
+case '/api/device/action':
+    if ($requestMethod === 'POST') (new DeviceController())->logAction();
+    break;
+case '/api/admin/device/stats':
+    // Admin jogosultság ellenőrzés
+    $userData = Auth::getDecodedToken();
+    if (!$userData || $userData->data->role !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Admin access required.']);
+        exit;
+    }
+    if ($requestMethod === 'GET') (new DeviceController())->getDeviceStats();
+    break;
+case '/api/admin/device/sessions':
+    // Admin jogosultság ellenőrzés
+    $userData = Auth::getDecodedToken();
+    if (!$userData || $userData->data->role !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Admin access required.']);
+        exit;
+    }
+    if ($requestMethod === 'GET') (new DeviceController())->getAllSessions();
+    break;
+    
+
     case '/api/cities/favorites':
         $userData = Auth::getDecodedToken();
         if (!$userData) { http_response_code(401); echo json_encode(['error' => 'Access denied.']); exit; }
